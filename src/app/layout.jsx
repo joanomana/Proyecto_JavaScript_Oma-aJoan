@@ -4,7 +4,7 @@ import "./globals.css";
 
 
 export const metadata = {
-  title: "Dungeons & Dragons",
+  title: "D & G Wiki",
   description: "Create your own D&D character",
 };
 

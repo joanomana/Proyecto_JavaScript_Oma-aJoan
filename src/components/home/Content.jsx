@@ -1,6 +1,4 @@
-
 import { useEffect, useState } from "react";
-import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
 const items = [
@@ -14,6 +12,13 @@ const items = [
 export default function Content() {
 
     const [data, setData] = useState({});
+    const router = useRouter();
+
+
+    const navigateToItemDetail = (item) => {
+        const formattedItem = item.toLowerCase().replace(/\s+/g, '-');
+        router.push(`/item/${formattedItem}`);
+    };
 
     useEffect(() => {
         items.forEach(async (item) => {
@@ -22,18 +27,6 @@ export default function Content() {
         setData(prev => ({ ...prev, [item.name]: json.results }));
         });
     }, []);
-
-    const showInfo = async (endpoint, title) => {
-        const res = await fetch(`https://www.dnd5eapi.co${endpoint}`);
-        const json = await res.json();
-        Swal.fire({
-        title,
-        html: `<p>${Array.isArray(json.desc) ? json.desc.join("<br>") : json.desc || "No description available."}</p>`,
-        icon: "info",
-        confirmButtonColor: "#6366f1",
-        width: 600
-        });
-    };
 
     return (
         <div className="px-6 py-10 max-w-6xl mx-auto">
@@ -59,8 +52,7 @@ export default function Content() {
                 key={item.name}
                 className="bg-white shadow-md rounded-2xl p-4 text-center cursor-pointer hover:shadow-lg transition"
                 onClick={() => {
-                    const first = data[item.name]?.[0];
-                    if (first) showInfo(first.url, first.name);
+                    navigateToItemDetail(item.name);
                 }}
                 >
                 <div className="text-4xl mb-2">{item.image}</div>
