@@ -37,7 +37,7 @@ export default function Nav({ setSelectedPage }) {
                 </div>
 
                 <div className="hidden md:block">
-                    <a href="/Login" className="p-2 rounded-lg bg-red-500">
+                    <a href="/login" className="p-2 rounded-lg bg-red-500">
                         Custom Character
                     </a>
                 </div>

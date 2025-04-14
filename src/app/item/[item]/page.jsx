@@ -1,6 +1,6 @@
 'use client';
 import { useParams, useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Backgrounds  from "@/components/home/Background";
 import Monsters from "@/components/home/Monsters";
 import Equipment from "@/components/home/Equipment";
