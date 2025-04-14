@@ -16,10 +16,9 @@ export async function POST(req) {
             return new Response(JSON.stringify({ error: "The user already exists!" }), { status: 400 });
         }
 
-        // Encriptar la contraseña
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Enviar nuevo usuario a MockAPI con la contraseña encriptada
         const res = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },

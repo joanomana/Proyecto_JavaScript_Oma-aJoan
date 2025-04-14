@@ -38,7 +38,7 @@ export default function Login (){
             });
 
             setTimeout(() => {
-                router.push("/home");
+                router.push("/list-characters");
             }, 2000);
         }
     };
