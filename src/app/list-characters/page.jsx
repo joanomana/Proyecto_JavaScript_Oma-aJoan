@@ -7,6 +7,7 @@ import { CiMenuBurger } from "react-icons/ci";
 import { AiOutlineClose } from "react-icons/ai";
 import ContentList from "@/components/characters/ContentList";
 import Customized from "@/components/characters/Customized";
+import Footer from "@/components/home/Footer";
 
 export default function Home() {
     const [selectedPage, setSelectedPage] = useState('/');
@@ -19,11 +20,11 @@ export default function Home() {
     const renderComponent = () => {
         switch (selectedPage) {
             case 'icon':
-                return <ContentList />;
+                return <ContentList username={username} />;
             case 'customized':
                 return <Customized />;
             default:
-                return <ContentList />;
+                return <ContentList username={username} />;
         }
     };
 
@@ -60,7 +61,7 @@ export default function Home() {
     if (isLoading) return <p>Loading...</p>;
 
     return (
-        <div>
+        <div className="flex flex-col">
             <nav className="bg-gray-300 p-4 border-b-2 border-red-600">
                 <div className="flex justify-between items-center">
                     <img
@@ -74,7 +75,7 @@ export default function Home() {
                             className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg"
                             onClick={() => handlePageChange('icon')}
                         >
-                            Characters
+                            Create your character
                         </button>
                         <button
                             className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg"
@@ -117,7 +118,7 @@ export default function Home() {
 
                 {isOpen && (
                     <div className="flex flex-col gap-4 mt-4 md:hidden items-center">
-                        <button onClick={() => handlePageChange('icon')}>Characters</button>
+                        <button onClick={() => handlePageChange('icon')}>Create your character</button>
                         <button onClick={() => handlePageChange('customized')}>Your characters</button>
                         <div className="text-sm text-gray-800 font-semibold">Welcome, {username.charAt(0).toUpperCase() +username.slice(1)}!</div>
                         <button onClick={logout} className="text-red-500">Logout</button>
@@ -126,6 +127,7 @@ export default function Home() {
             </nav>
 
             {renderComponent()}
+            <Footer />
         </div>
     );
 }
