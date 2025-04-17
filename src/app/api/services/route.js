@@ -20,8 +20,12 @@ export const fetchItems = async () => {
 
 export const fetchArmor = async () => {
   const response = await fetch(`${API_BASE_URL}equipment-categories/armor`);
-  const data = await response.equipment.json();
-  console.log(data);
-  
-  return data.results;
+  const data = await response.json();
+  return data.equipment;
+}
+
+export const fetchWeapons = async () => {
+  const response = await fetch(`${API_BASE_URL}equipment-categories/weapon`);
+  const data = await response.json();
+  return data.equipment;
 }

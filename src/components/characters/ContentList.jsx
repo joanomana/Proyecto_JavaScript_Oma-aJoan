@@ -1,25 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { fetchRaces, fetchClasses, fetchItems } from '@/app/api/services/route';
+import { fetchRaces, fetchClasses, fetchItems, fetchArmor, fetchWeapons } from '@/app/api/services/route';
 
 const CharacterForm = ({ username, onCharacterCreate }) => {
     const [name, setName] = useState('');
     const [race, setRace] = useState('');
     const [classType, setClassType] = useState('');
     const [gender, setGender] = useState('male');
-    const [armor, setArmor] = useState('');
+    const [armorType, setArmorType] = useState('');
     const [weapon, setWeapon] = useState('');
-    const [stats, setStats] = useState({ strength: 10, dexterity: 10, intelligence: 10 });
+    const [stats, setStats] = useState({  charisma:10,  constitution:10,  dexterity: 10, intelligence: 10, strength: 10,  wisdom:10 });
     const [abilities, setAbilities] = useState([]);
     const [accessories, setAccessories] = useState([]);
 
     const [races, setRaces] = useState([]);
     const [classes, setClasses] = useState([]);
+    const [armor, setArmor] = useState([]);
     const [items, setItems] = useState([]);
+    const [weapons, setWeapons] = useState([]);
 
     useEffect(() => {
         fetchRaces().then(setRaces);
         fetchClasses().then(setClasses);
+        fetchArmor().then(setArmor);
         fetchItems().then(setItems);
+        fetchWeapons().then(setWeapons);
     }, []);
 
     const handleSubmit = (e) => {
@@ -30,7 +34,7 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
             race,
             classType,
             gender,
-            armor,
+            armorType,
             weapon,
             stats,
             abilities,
@@ -106,36 +110,55 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
 
                 <div>
                     <label htmlFor="armor" className="block text-sm font-medium">Armor</label>
-                    <input
+                    <select
                         id="armor"
-                        type="text"
-                        placeholder="Armor"
-                        value={armor}
-                        onChange={(e) => setArmor(e.target.value)}
+                        value={armorType}
+                        onChange={(e) => setArmorType(e.target.value)}
                         className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                        required
+                    >
+                        {armor.map((arm) => (
+                            <option key={arm.index} value={arm.index}>
+                                {arm.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
-
                 <div>
                     <label htmlFor="weapon" className="block text-sm font-medium">Weapon</label>
-                    <input
+                    <select
                         id="weapon"
-                        type="text"
-                        placeholder="Weapon"
                         value={weapon}
                         onChange={(e) => setWeapon(e.target.value)}
                         className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                        required
+                    >
+                        {weapons.map((wea) => (
+                            <option key={wea.index} value={wea.index}>
+                                {wea.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
                     <div>
-                        <label htmlFor="strength" className="block text-sm font-medium">Strength</label>
+                        <label htmlFor="charisma" className="block text-sm font-medium">Charisma</label>
                         <input
-                            id="strength"
+                            id="charisma"
                             type="number"
-                            value={stats.strength}
-                            onChange={(e) => setStats({ ...stats, strength: e.target.value })}
+                            value={stats.charisma}
+                            onChange={(e) => setStats({ ...stats, charisma: e.target.value })}
+                            className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="constitution" className="block text-sm font-medium">Constitution</label>
+                        <input
+                            id="constitution"
+                            type="number"
+                            value={stats.constitution}
+                            onChange={(e) => setStats({ ...stats, constitution: e.target.value })}
                             className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                     </div>
@@ -159,6 +182,27 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
                             className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                     </div>
+                    <div>
+                        <label htmlFor="strength" className="block text-sm font-medium">Strength</label>
+                        <input
+                            id="strength"
+                            type="number"
+                            value={stats.strength}
+                            onChange={(e) => setStats({ ...stats, strength: e.target.value })}
+                            className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="wisdom" className="block text-sm font-medium">Wisdom</label>
+                        <input
+                            id="wisdom"
+                            type="number"
+                            value={stats.wisdom}
+                            onChange={(e) => setStats({ ...stats, wisdom: e.target.value })}
+                            className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                    
                 </div>
 
                 <div>
