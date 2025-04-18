@@ -12,11 +12,6 @@ export const fetchClasses = async () => {
   return data.results;
 };
 
-export const fetchItems = async () => {
-  const response = await fetch(`${API_BASE_URL}feats`); {/* Falta corregir */}
-  const data = await response.json();
-  return data;
-};
 
 export const fetchArmor = async () => {
   const response = await fetch(`${API_BASE_URL}equipment-categories/armor`);
@@ -28,4 +23,28 @@ export const fetchWeapons = async () => {
   const response = await fetch(`${API_BASE_URL}equipment-categories/weapon`);
   const data = await response.json();
   return data.equipment;
+}
+
+const fetchFeatures = async () => {
+  const response = await fetch(`${API_BASE_URL}features`);
+  const data = await response.json();
+  return data.results;
+};
+
+const fetchSpells = async () => {
+  const response = await fetch(`${API_BASE_URL}spells`);
+  const data = await response.json();
+  return data.results;
+}
+
+export const fetchItems = async () => {
+  const features = await fetchFeatures();
+  const spells = await fetchSpells();
+  return { features, spells };
+};
+
+export const fecthAccesories = async () => {
+  const response = await fetch(`${API_BASE_URL}magic-items`);
+  const data = await response.json();
+  return data.results;
 }

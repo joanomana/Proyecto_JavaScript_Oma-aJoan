@@ -1,22 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { fetchRaces, fetchClasses, fetchItems, fetchArmor, fetchWeapons } from '@/app/api/services/route';
+import { fetchRaces, fetchClasses, fetchItems, fetchArmor, fetchWeapons, fecthAccesories } from '@/app/api/services/route';
+import Swal from 'sweetalert2';
 
-const CharacterForm = ({ username, onCharacterCreate }) => {
+export default function CharacterForm  ( username ){
     const [name, setName] = useState('');
     const [race, setRace] = useState('');
     const [classType, setClassType] = useState('');
     const [gender, setGender] = useState('male');
     const [armorType, setArmorType] = useState('');
     const [weapon, setWeapon] = useState('');
-    const [stats, setStats] = useState({  charisma:10,  constitution:10,  dexterity: 10, intelligence: 10, strength: 10,  wisdom:10 });
-    const [abilities, setAbilities] = useState([]);
-    const [accessories, setAccessories] = useState([]);
+    const [stats, setStats] = useState({  charisma:8,  constitution:8,  dexterity: 8, intelligence: 8, strength: 8,  wisdom:8 });
+    const [selectedFeature, setSelectedFeature] = useState('');
+    const [selectedSpell, setSelectedSpell] = useState('');
+    const[accessorie1, setAccessorie1] = useState('');
+    const[accessorie2, setAccessorie2] = useState('');
+
 
     const [races, setRaces] = useState([]);
     const [classes, setClasses] = useState([]);
     const [armor, setArmor] = useState([]);
-    const [items, setItems] = useState([]);
     const [weapons, setWeapons] = useState([]);
+    const [items, setItems] = useState({
+        features: [],
+        spells: [],
+    });
+    const [accessories, setAccessories] = useState([]);
+    
 
     useEffect(() => {
         fetchRaces().then(setRaces);
@@ -24,12 +33,14 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
         fetchArmor().then(setArmor);
         fetchItems().then(setItems);
         fetchWeapons().then(setWeapons);
+        fetchItems().then(setItems);
+        fecthAccesories().then(setAccessories);
     }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const character = {
-            username,
+            username: username?.username || "",
             name,
             race,
             classType,
@@ -37,10 +48,42 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
             armorType,
             weapon,
             stats,
-            abilities,
-            accessories
+            feature: selectedFeature,
+            spell: selectedSpell,
+            one: accessorie1,
+            two: accessorie2,
         };
-        onCharacterCreate(character);
+    
+        try {
+            const response = await fetch(
+                "https://67ca4ce8102d684575c4f5f1.mockapi.io/api/v1/users/characters",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(character),
+                }
+            );
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const data = await response.json();
+            Swal.fire({
+                icon: "success",
+                title: "Character Created",
+                text: "Your character has been created successfully!",
+            });
+            setName("");
+            setRace("");
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.message || "Failed to create character",
+            });
+            console.error("Error details:", error);
+        }
     };
 
     return (
@@ -69,6 +112,7 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
                         className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     >
+                        <option value="">Select a race</option>
                         {races.map((race) => (
                             <option key={race.index} value={race.index}>
                                 {race.name}
@@ -86,6 +130,7 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
                         className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     >
+                        <option value="">Select a class</option>
                         {classes.map((cls) => (
                             <option key={cls.index} value={cls.index}>
                                 {cls.name}
@@ -117,6 +162,7 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
                         className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     >
+                        <option value="">Select an armor</option>
                         {armor.map((arm) => (
                             <option key={arm.index} value={arm.index}>
                                 {arm.name}
@@ -133,6 +179,7 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
                         className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     >
+                        <option value="">Select a weapon</option>
                         {weapons.map((wea) => (
                             <option key={wea.index} value={wea.index}>
                                 {wea.name}
@@ -206,37 +253,82 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
                 </div>
 
                 <div>
-                    <label htmlFor="abilities" className="block text-sm font-medium">Special Abilities</label>
-                    <select
-                        id="abilities"
-                        multiple
-                        value={abilities}
-                        onChange={(e) => setAbilities([...e.target.selectedOptions].map(o => o.value))}
-                        className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                        {items.abilities?.map((ability) => (
-                            <option key={ability.index} value={ability.index}>
-                                {ability.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                    <label htmlFor="abilities" className="block text-sm font-medium mb-2">Special Abilities</label>
+                    
+                    <div className="flex space-x-4">
+                        <div className="w-1/2">
+                            <label htmlFor="features" className="block text-xs text-gray-300 mb-1">Feature</label>
+                            <select
+                                id="features"
+                                value={selectedFeature}
+                                onChange={(e) => setSelectedFeature(e.target.value)}
+                                className="w-full p-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                                <option value="">Select a feature</option>
+                                {items.features?.map((feature) => (
+                                    <option key={feature.index} value={feature.index}>
+                                        {feature.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
+                        <div className="w-1/2">
+                            <label htmlFor="spells" className="block text-xs text-gray-300 mb-1">Spell</label>
+                            <select
+                                id="spells"
+                                value={selectedSpell}
+                                onChange={(e) => setSelectedSpell(e.target.value)}
+                                className="w-full p-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                                <option value="">Select a spell</option>
+                                {items.spells?.map((spell) => (
+                                    <option key={spell.index} value={spell.index}>
+                                        {spell.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div>
-                    <label htmlFor="accessories" className="block text-sm font-medium">Accessories</label>
-                    <select
-                        id="accessories"
-                        multiple
-                        value={accessories}
-                        onChange={(e) => setAccessories([...e.target.selectedOptions].map(o => o.value))}
-                        className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                        {items.accessories?.map((item) => (
-                            <option key={item.index} value={item.index}>
-                                {item.name}
-                            </option>
-                        ))}
-                    </select>
+                    <label htmlFor="accesories" className="block text-sm font-medium mb-2">Accesories</label>
+                    <p>You can choose two accesories</p>
+                    <div className="flex space-x-4">
+                        <div className="w-1/2">
+                            <label htmlFor="one" className="block text-xs text-gray-300 mb-1">1</label>
+                            <select
+                                id="one"
+                                value={accessorie1}
+                                onChange={(e) => setAccessorie1(e.target.value)}
+                                className="w-full p-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                                <option value="">Select a Accesorie</option>
+                                {accessories.map((i) => (
+                                    <option key={i.index} value={i.index}>
+                                        {i.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="w-1/2">
+                            <label htmlFor="two" className="block text-xs text-gray-300 mb-1">2</label>
+                            <select
+                                id="two"
+                                value={accessorie2}
+                                onChange={(e) => setAccessorie2(e.target.value)}
+                                className="w-full p-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                                <option value="">Select a Accesorie</option>
+                                {accessories.map((i) => (
+                                    <option key={i.index} value={i.index}>
+                                        {i.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <button
@@ -248,6 +340,5 @@ const CharacterForm = ({ username, onCharacterCreate }) => {
             </form>
         </div>
     );
-};
+}
 
-export default CharacterForm;
