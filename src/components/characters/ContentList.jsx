@@ -67,8 +67,6 @@ export default function CharacterForm  ( username ){
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-    
-            const data = await response.json();
             Swal.fire({
                 icon: "success",
                 title: "Character Created",
