@@ -7,6 +7,7 @@ import { CiMenuBurger } from "react-icons/ci";
 import { AiOutlineClose } from "react-icons/ai";
 import ContentList from "@/components/characters/ContentList";
 import Customized from "@/components/characters/Customized";
+import Community from "@/components/characters/Community";  
 import Footer from "@/components/home/Footer";
 
 export default function Home() {
@@ -19,10 +20,10 @@ export default function Home() {
 
     const renderComponent = () => {
         switch (selectedPage) {
-            case 'icon':
-                return <ContentList username={username} />;
+            case 'community':
+                return <Community username={username} />;
             case 'customized':
-                return <Customized />;
+                return <Customized username={username} />;
             default:
                 return <ContentList username={username} />;
         }
@@ -73,15 +74,15 @@ export default function Home() {
                     <div className="hidden md:flex gap-10 absolute left-1/2 transform -translate-x-1/2">
                         <button
                             className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg"
-                            onClick={() => handlePageChange('icon')}
-                        >
-                            Create your character
-                        </button>
-                        <button
-                            className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg"
                             onClick={() => handlePageChange('customized')}
                         >
                             Your characters
+                        </button>
+                        <button
+                            className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg"
+                            onClick={() => handlePageChange('community')}
+                        >
+                            Community characters
                         </button>
                     </div>
                     <div
@@ -118,10 +119,10 @@ export default function Home() {
 
                 {isOpen && (
                     <div className="flex flex-col gap-4 mt-4 md:hidden items-center">
-                        <button onClick={() => handlePageChange('icon')}>Create your character</button>
-                        <button onClick={() => handlePageChange('customized')}>Your characters</button>
-                        <div className="text-sm text-gray-800 font-semibold">Welcome, {username.charAt(0).toUpperCase() +username.slice(1)}!</div>
-                        <button onClick={logout} className="text-red-500">Logout</button>
+                        <button className="text-white py-3 px-2 rounded-lg shadow-md bg-gray-800" onClick={() => handlePageChange('customized')}>Your characters</button>
+                        <button className="text-white py-3 px-2 rounded-lg shadow-md bg-gray-800" onClick={() => handlePageChange('community')}>Community characters</button>
+                        <div className="text-2xl text-gray-800 font-semibold">Welcome, {username.charAt(0).toUpperCase() +username.slice(1)}!</div>
+                        <button onClick={logout} className="bg-red-500 px-3 py-2 rounded-lg shadow-lg text-gray-800">Logout</button>
                     </div>
                 )}
             </nav>
