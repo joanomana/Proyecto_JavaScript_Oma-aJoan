@@ -194,7 +194,7 @@ export default function Customized({username}) {
         fetchAndSortCharacters();
     }, []);
     return (
-        <div className="py-20 px-10 flex flex-col gap-10 bg-gray-200"> 
+        <div className="py-20 px-10 flex flex-col gap-10 bg-gray-200 md:h-screen"> 
             <div className="flex flex-col items-center justify-center mb-10 px-3 py-4 bg-yellow-600 rounded-lg shadow-md transition text-4xl text-white font-bold hover:bg-yellow-500">
                 <h1>Hi {username.charAt(0).toUpperCase() +username.slice(1)} ! These are the characters you have created </h1>
             </div>  
