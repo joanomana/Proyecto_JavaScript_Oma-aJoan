@@ -97,12 +97,6 @@ export default function Home() {
                         {isDropdownOpen && (
                             <div className="absolute right-0 w-48 bg-white border rounded-lg shadow-lg z-10 ">
                                 <button
-                                    onClick={() => router.push("/profile")}
-                                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 hover:cursor-pointer"
-                                >
-                                    Profile
-                                </button>
-                                <button
                                     onClick={logout}
                                     className="block w-full text-left px-4 py-2 hover:bg-red-100 text-red-500 hover:cursor-pointer"
                                 >
