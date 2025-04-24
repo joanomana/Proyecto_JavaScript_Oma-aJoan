@@ -31,7 +31,7 @@ export default function Nav({ setSelectedPage }) {
                 </button>
 
                 <div className=" hidden md:flex gap-10 absolute left-1/2 transform -translate-x-1/2">
-                    <button className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg   " onClick={() => handlePageChange('characters')}>Characters</button>
+                    <button className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg   " onClick={() => handlePageChange('characters')}>Rules</button>
                     <button className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg " onClick={() => handlePageChange('spells')}>Spells</button>
                     <button className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg " onClick={() => handlePageChange('languages')}>Languages</button>
                 </div>
