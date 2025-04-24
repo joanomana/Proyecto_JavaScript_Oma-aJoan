@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchRaces, fetchClasses, fetchItems, fetchArmor, fetchWeapons, fecthAccesories } from '@/app/api/services/route';
+import { fetchRaces, fetchClasses, fetchItems, fetchTypeArmor , fetchArmor, fetchWeapons, fecthAccesories } from '@/app/api/services/route';
 import Swal from 'sweetalert2';
 
 export default function CharacterForm  ( username ){
@@ -7,8 +7,10 @@ export default function CharacterForm  ( username ){
     const [race, setRace] = useState('');
     const [classType, setClassType] = useState('');
     const [gender, setGender] = useState('male');
+    const [armor, setArmor] = useState('');
     const [armorType, setArmorType] = useState('');
     const [weapon, setWeapon] = useState('');
+    const [weaponType, setWeaponType] = useState('');
     const [stats, setStats] = useState({  charisma:8,  constitution:8,  dexterity: 8, intelligence: 8, strength: 8,  wisdom:8 });
     const [selectedFeature, setSelectedFeature] = useState('');
     const [selectedSpell, setSelectedSpell] = useState('');
@@ -18,7 +20,9 @@ export default function CharacterForm  ( username ){
 
     const [races, setRaces] = useState([]);
     const [classes, setClasses] = useState([]);
-    const [armor, setArmor] = useState([]);
+    const [armorTypes, setArmorTypes] = useState([]);
+    const [armors, setArmors] = useState([]);
+    const [weaponTypes, setWeaponTypes] = useState([]);
     const [weapons, setWeapons] = useState([]);
     const [items, setItems] = useState({
         features: [],
@@ -30,12 +34,70 @@ export default function CharacterForm  ( username ){
     useEffect(() => {
         fetchRaces().then(setRaces);
         fetchClasses().then(setClasses);
-        fetchArmor().then(setArmor);
         fetchItems().then(setItems);
-        fetchWeapons().then(setWeapons);
         fetchItems().then(setItems);
         fecthAccesories().then(setAccessories);
     }, []);
+
+    useEffect(() => {
+        if (classType) {
+            fetchTypeArmor(classType).then(profiencies => {
+                const armorProfiencies = profiencies.filter(prof =>
+                    prof?.index?.includes("armor") || 
+                    prof?.index?.includes("shield")
+                );
+                
+                const finalArmorTypes = armorProfiencies.length > 0 
+                    ? armorProfiencies 
+                    : [{ index: "no-option", name: "No armor options" }];
+                
+                setArmorTypes(finalArmorTypes);
+                }).catch(error => {
+                console.error("Error:", error);
+                setArmorTypes([{ index: "no-option", name: "Error loading options" }]);
+                });
+            
+
+            fetchTypeArmor(classType).then(profiencies => {
+                const weaponProfiencies = profiencies.filter(prof => prof.index.includes("weapon"));
+                const finalWeaponTypes = weaponProfiencies.length > 0 
+                    ? weaponProfiencies 
+                    : [{ index: "no-option", name: "No weapon options" }];
+                
+                setWeaponTypes(finalWeaponTypes);
+                }).catch(error => {
+                console.error("Error:", error);
+                setWeaponTypes([{ index: "no-option", name: "Error loading options" }]);
+                });
+        }
+    }, [classType]);
+
+    useEffect(() => {
+        if (armorType) {
+            if (armorType === 'no-option') {
+                setArmors([{ index: "no-option", name: "No armor options" }]);
+            } else {
+                fetchArmor(armorType).then(armorData => {
+                setArmors(armorData || []); 
+                });
+            }
+            
+            
+        }
+    }, [armorType]);
+
+    useEffect(() => {
+        if (weaponType) {
+            if (weaponType === 'no-option') {
+                setWeapons([{ index: "no-option", name: "No weapon options" }]);
+            } else {
+                fetchWeapons(weaponType).then(armorData => {
+                setWeapons(armorData || []); 
+                });
+            }
+        }
+    }, [weaponType]);
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -46,6 +108,8 @@ export default function CharacterForm  ( username ){
             classType,
             gender,
             armorType,
+            armor,
+            weaponType,
             weapon,
             stats,
             feature: selectedFeature,
@@ -150,9 +214,8 @@ export default function CharacterForm  ( username ){
                         <option value="other">Other</option>
                     </select>
                 </div>
-
                 <div>
-                    <label htmlFor="armor" className="block text-sm font-medium">Armor</label>
+                    <label htmlFor="armorType" className="block text-sm font-medium">Armor Type</label>
                     <select
                         id="armor"
                         value={armorType}
@@ -160,10 +223,47 @@ export default function CharacterForm  ( username ){
                         className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     >
-                        <option value="">Select an armor</option>
-                        {armor.map((arm) => (
+                        <option value="">Select a armor type</option>
+                        
+                        {armorTypes.length > 0 ? (
+                            armorTypes.map((armt) => (
+                                <option key={armt.index} value={armt.index} >
+                                        {armt.name}
+                                </option>
+                            ))
+                        ) : null}
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="armor" className="block text-sm font-medium">Armor</label>
+                    <select
+                        id="armor"
+                        value={armor}
+                        onChange={(e) => setArmor(e.target.value)}
+                        className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                    >
+                        <option value="">Select a armor</option>
+                        {armors.map((arm) => (
                             <option key={arm.index} value={arm.index}>
                                 {arm.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="armorType" className="block text-sm font-medium">Weapon Type</label>
+                    <select
+                        id="armor"
+                        value={weaponType}
+                        onChange={(e) => setWeaponType(e.target.value)}
+                        className="w-full p-2 mt-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                    >
+                        <option value="">Select a weapon Type</option>
+                        {weaponTypes.map((armt) => (
+                            <option key={armt.index} value={armt.index}>
+                                    {armt.name}
                             </option>
                         ))}
                     </select>
