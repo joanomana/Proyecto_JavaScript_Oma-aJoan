@@ -21,6 +21,8 @@ export default function Customized({username}) {
                     <p><strong>Class:</strong> ${character.classType}</p>
                     <p><strong>Gender:</strong> ${character.gender}</p>
                     <p><strong>Armor Type:</strong> ${character.armorType}</p>
+                    <p><strong>Armor:</strong> ${character.armor}</p>
+                    <p><strong>Weapon Type:</strong> ${character.weaponType}</p>
                     <p><strong>Weapon:</strong> ${character.weapon}</p>
                     <ul> 
                         <h1 class="text-2xl font-bold text-start">Stats:</h1>
@@ -64,125 +66,220 @@ export default function Customized({username}) {
     })};
     const handleEdit = async (index) => {
         const character = characters[index];
-        const [races, classes, weapons, armors] = await Promise.all([
-            fetch('https://www.dnd5eapi.co/api/races').then(res => res.json()).then(data => data.results),
-            fetch('https://www.dnd5eapi.co/api/classes').then(res => res.json()).then(data => data.results),
-            fetch('https://www.dnd5eapi.co/api/equipment-categories/weapon').then(res => res.json()).then(data => data.equipment),
-            fetch('https://www.dnd5eapi.co/api/equipment-categories/armor').then(res => res.json()).then(data => data.equipment)
+    
+        const [races, classes] = await Promise.all([
+            fetch('https://www.dnd5eapi.co/api/2014/races').then(res => res.json()).then(data => data.results),
+            fetch('https://www.dnd5eapi.co/api/2014/classes').then(res => res.json()).then(data => data.results)
         ]);
+    
+        const fetchClassProficiencies = async (classType) => {
+            if (!classType) return [];
+            try {
+                const response = await fetch(`https://www.dnd5eapi.co/api/2014/classes/${classType}`);
+                const data = await response.json();
+                return data.proficiencies || [];
+            } catch (error) {
+                console.error("Error fetching proficiencies:", error);
+                return [];
+            }
+        };
+    
         const getOptions = (list, currentValue) =>
-            list.map(item => 
+            list.map(item =>
                 `<option value="${item.index}" ${item.index === currentValue ? 'selected' : ''}>${item.name}</option>`
             ).join('');
     
-        Swal.fire({
+        const initialProficiencies = await fetchClassProficiencies(character.classType);
+    
+        const extractTypes = (proficiencies, keyword) => {
+            const filteredTypes = proficiencies
+                .filter(p => p.index.includes(keyword))
+                .map(p => ({ index: p.index, name: p.name }));
+    
+
+            if (filteredTypes.length === 0) {
+                return [{ index: 'no-option', name: 'No available proficiencies' }];
+            }
+    
+            return filteredTypes;
+        };
+    
+        const armorTypes = extractTypes(initialProficiencies, 'armor');
+        const weaponTypes = extractTypes(initialProficiencies, 'weapon');
+    
+        const fetchEquipmentOptions = async (categoryIndex, selectedValue) => {
+            if (categoryIndex === 'no-option') {
+                return '<option value="no-option">No option available</option>';
+            }
+    
+            const endpoint = categoryIndex === 'all-armor' ? 'equipment-categories/armor' : `equipment-categories/${categoryIndex}`;
+    
+            try {
+                const res = await fetch(`https://www.dnd5eapi.co/api/2014/${endpoint}`);
+                const data = await res.json();
+                return getOptions(data.equipment, selectedValue);
+            } catch (err) {
+                console.error("Error fetching equipment:", err);
+                return '<option value="no-option">Error loading</option>';
+            }
+        };
+    
+        const armorOptions = character.armorType
+            ? await fetchEquipmentOptions(character.armorType, character.armor)
+            : '<option value="no-option">No armor available</option>';
+    
+        const weaponOptions = character.weaponType
+            ? await fetchEquipmentOptions(character.weaponType, character.weapon)
+            : '<option value="no-option">No weapon available</option>';
+    
+        const { value: formValues } = await Swal.fire({
             title: "Edit Character",
             html: `
-            <div class="p-3 flex flex-col items-start gap-2">
-                <div class="flex justify-center items-center gap-2">
-                    <label for="name">Name:</label>
-                    <input id="name" type="text" class="swal2-input" value="${character.name}" placeholder="Enter new name"> 
-                </div> 
-                <div class="flex justify-center items-center gap-2">
-                    <label for="race">Race:</label>
-                    <select id="race" class="swal2-select">${getOptions(races, character.race)}</select>
+            <div class="grid grid-cols-1 gap-4 p-2">
+                <div>
+                        <label for="name" class="block font-medium">Name:</label>
+                        <input id="name" type="text" class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-50" value="${character.name}">
                 </div>
-                <div class="flex justify-center items-center gap-2">
-                    <label for="classType">Class:</label>
-                    <select id="classType" class="swal2-select">${getOptions(classes, character.classType)}</select>
+                <div>
+                        <label for="gender" class="block font-medium">Gender:</label>
+                        <select id="gender" class="border border-gray-300 p-2 rounded-md max-w-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="male" ${character.gender === 'male' ? 'selected' : ''}>Male</option>
+                            <option value="female" ${character.gender === 'female' ? 'selected' : ''}>Female</option>
+                            <option value="other" ${character.gender === 'other' ? 'selected' : ''}>Other</option>
+                        </select>
                 </div>
-                <div class="flex justify-center items-center gap-5">
-                    <label for="gender">Select a Gender:</label>
-                    <select id="gender" class="swal2-select">
-                        <option value="male" ${character.gender === 'male' ? 'selected' : ''}>Male</option>
-                        <option value="female" ${character.gender === 'female' ? 'selected' : ''}>Female</option>
-                        <option value="other" ${character.gender === 'other' ? 'selected' : ''}>Other</option>
-                    </select>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="race" class="block font-medium">Race:</label>
+                        <select id="race" class="border border-gray-300 p-2 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-30">${getOptions(races, character.race)}</select>
+                    </div>
+                    <div>
+                        <label for="classType" class="block font-medium">Class:</label>
+                        <select id="classType" class="border border-gray-300 p-2 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-30">${getOptions(classes, character.classType)}</select>
+                    </div>
                 </div>
-                <div class="flex justify-center items-center gap-2">
-                    <label for="armorType">Armor Type:</label>
-                    <select id="armorType" class="swal2-select">${getOptions(armors, character.armorType)}</select>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="armorType" class="block font-medium">Armor Type:</label>
+                        <select id="armorType" class="border border-gray-300 p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-30">
+                            <option value="">Select armor type</option>
+                            ${getOptions(armorTypes, character.armorType)}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="armor" class="block font-medium">Armor:</label>
+                        <select id="armor" class="border border-gray-300 p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-30">
+                            ${armorOptions}
+                        </select>
+                    </div>
                 </div>
-                <div class="flex justify-center items-center gap-2">
-                    <label for="weapon">Weapon:</label>
-                    <select id="weapon" class="swal2-select">${getOptions(weapons, character.weapon)}</select>
+    
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="weaponType" class="block font-medium">Weapon Type:</label>
+                        <select id="weaponType" class="border border-gray-300 p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-30">
+                            <option value="">Select weapon type</option>
+                            ${getOptions(weaponTypes, character.weaponType)}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="weapon" class="block font-medium">Weapon:</label>
+                        <select id="weapon" class="border border-gray-300 p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-30">
+                            ${weaponOptions}
+                        </select>
+                    </div>
                 </div>
-                    <div class="flex justify-center items-center gap-2>
-                        <label for="charisma">Charisma</label>
-                        <input id="charisma" type="number" class="swal2-input" value="${character.stats.charisma}">
-                    </div>
-                    <div class="flex justify-center items-center gap-2>
-                        <label for="constitution">Constitution</label>
-                        <input id="constitution" type="number" class="swal2-input" value="${character.stats.constitution}">
-                    </div>
-                    <div class="flex justify-center items-center gap-2>
-                        <label for="dexterity">Dexterity</label>
-                        <input id="dexterity" type="number" class="swal2-input" value="${character.stats.dexterity}">
-                    </div>
-                    <div class="flex justify-center items-center gap-2>
-                        <label for="intelligence">Intelligence</label>
-                        <input id="intelligence" type="number" class="swal2-input" value="${character.stats.intelligence}">
-                    </div>
-                    <div class="flex justify-center items-center gap-2>
-                        <label for="strength">Strength</label>
-                        <input id="strength" type="number" class="swal2-input" value="${character.stats.strength}">
-                    </div>
-                    <div class="flex justify-center items-center gap-2>
-                        <label for="wisdom">Wisdom</label>
-                        <input id="wisdom" type="number" class="swal2-input" value="${character.stats.wisdom}">
-                    </div>
+    
+                <div class="grid grid-cols-2 gap-3 mt-2">
+                    ${Object.entries(character.stats).map(([stat, value]) => `
+                        <div>
+                            <label for="${stat}" class="block font-medium capitalize">${stat}:</label>
+                            <input id="${stat}" type="number" class="border border-gray-300 p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-20" value="${value}">
+                        </div>
+                    `).join('')}
+                </div>
             </div>
             `,
             showCancelButton: true,
             confirmButtonText: "Save",
             preConfirm: () => {
-            const name = Swal.getPopup().querySelector('#name').value;
-            const race = Swal.getPopup().querySelector('#race').value;
-            const classType = Swal.getPopup().querySelector('#classType').value;
-            const gender = Swal.getPopup().querySelector('#gender').value;
-            const armorType = Swal.getPopup().querySelector('#armorType').value;
-            const weapon = Swal.getPopup().querySelector('#weapon').value;
-            const stats = {
-                charisma: parseInt(Swal.getPopup().querySelector('#charisma').value, 10),
-                constitution: parseInt(Swal.getPopup().querySelector('#constitution').value, 10),
-                dexterity: parseInt(Swal.getPopup().querySelector('#dexterity').value, 10),
-                intelligence: parseInt(Swal.getPopup().querySelector('#intelligence').value, 10),
-                strength: parseInt(Swal.getPopup().querySelector('#strength').value, 10),
-                wisdom: parseInt(Swal.getPopup().querySelector('#wisdom').value, 10)
-            };
-
-            if (!name || !race || !classType || !gender || !armorType || !weapon) {
-                Swal.showValidationMessage('Please fill out all fields');
-            }
-
-            return { name, race, classType, gender, armorType, weapon, stats };
-            }
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-            const updatedCharacter = {
-                ...character,
-                ...result.value
-            };
-
-            await fetch(`https://67ca4ce8102d684575c4f5f1.mockapi.io/api/v1/users/characters/${character.id}`, {
-                method: 'PUT',
-                headers: {
-                'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updatedCharacter)
-            });
-
-            setCharacters(prev => {
-                const updated = [...prev];
-                updated[index] = updatedCharacter;
-                return updated;
-            });
-
-            Swal.fire('Updated!', `${updatedCharacter.name} has been updated.`, 'success');
+                const getValue = (id) => Swal.getPopup().querySelector(`#${id}`).value;
+                const getNumberValue = (id) => parseInt(getValue(id), 10) || 0;
+    
+                return {
+                    name: getValue('name'),
+                    race: getValue('race'),
+                    classType: getValue('classType'),
+                    gender: getValue('gender'),
+                    armorType: getValue('armorType'),
+                    armor: getValue('armor'),
+                    weaponType: getValue('weaponType'),
+                    weapon: getValue('weapon'),
+                    stats: {
+                        charisma: getNumberValue('charisma'),
+                        constitution: getNumberValue('constitution'),
+                        dexterity: getNumberValue('dexterity'),
+                        intelligence: getNumberValue('intelligence'),
+                        strength: getNumberValue('strength'),
+                        wisdom: getNumberValue('wisdom')
+                    }
+                };
+            },
+            didOpen: () => {
+                const armorTypeEl = Swal.getPopup().querySelector('#armorType');
+                const armorEl = Swal.getPopup().querySelector('#armor');
+                armorTypeEl.addEventListener('change', async (e) => {
+                    armorEl.innerHTML = await fetchEquipmentOptions(e.target.value, '');
+                });
+    
+                const weaponTypeEl = Swal.getPopup().querySelector('#weaponType');
+                const weaponEl = Swal.getPopup().querySelector('#weapon');
+                weaponTypeEl.addEventListener('change', async (e) => {
+                    weaponEl.innerHTML = await fetchEquipmentOptions(e.target.value, '');
+                });
+    
+                Swal.getPopup().querySelector('#classType').addEventListener('change', async (e) => {
+                    const profs = await fetchClassProficiencies(e.target.value);
+                    const newArmorTypes = extractTypes(profs, 'armor');
+                    const newWeaponTypes = extractTypes(profs, 'weapon');
+    
+                    armorTypeEl.innerHTML = `<option value="">Select armor type</option>${getOptions(newArmorTypes, '')}`;
+                    weaponTypeEl.innerHTML = `<option value="">Select weapon type</option>${getOptions(newWeaponTypes, '')}`;
+                    armorEl.innerHTML = '<option value="no-option">No armor available</option>';
+                    weaponEl.innerHTML = '<option value="no-option">No weapon available</option>';
+                });
             }
         });
+    
+        if (formValues) {
+            try {
+                const updatedCharacter = {
+                    ...character,
+                    ...formValues,
+                    feature: character.feature,
+                    spell: character.spell,
+                    one: character.one,
+                    two: character.two
+                };
+    
+                await fetch(`https://67ca4ce8102d684575c4f5f1.mockapi.io/api/v1/users/characters/${character.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedCharacter)
+                });
+    
+                setCharacters(prev => prev.map((char, i) => i === index ? updatedCharacter : char));
+                Swal.fire('Updated!', `${updatedCharacter.name} has been updated.`, 'success');
+            } catch (error) {
+                console.error('Update error:', error);
+                Swal.fire('Error!', 'Failed to update character', 'error');
+            }
+        }
     };
     
+    
+    
+
     useEffect(() => {
         const fetchAndSortCharacters = async () => {
             await fetchCharacters();
@@ -190,7 +287,6 @@ export default function Customized({username}) {
                 [...prevCharacters].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
             );
         };
-        console.log("Fetching and sorting characters...");
         fetchAndSortCharacters();
     }, []);
     return (
