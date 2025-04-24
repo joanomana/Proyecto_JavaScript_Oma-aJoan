@@ -297,12 +297,12 @@ export default function Customized({username}) {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                 {characters.map((char, index) => (
-                    <div key={index} className="bg-white p-3 rounded-lg shadow-md mb-4 hover:bg-gray-500 hover:text-white transition duration-300 ease-in-out">
-                        <h1 className="text-center">Character {index}</h1>
-                        <p>Name: {char.name}</p>
-                        <p>Race: {char.race}</p>
-                        <p>Class: {char.classType}</p>
-                        <p>Created date: {new Date(char.createdAt).toLocaleDateString()}</p>
+                    <div key={index} className="bg-white p-4 rounded-lg shadow-lg mb-6 hover:bg-gray-200 hover:text-black transition duration-300 ease-in-out">
+                        <h1 className="text-center text-xl font-semibold">Character {index +1}</h1>
+                        <p><strong>Name:</strong> {char.name}</p>
+                        <p><strong>Race:</strong> {char.race}</p>
+                        <p><strong>Class:</strong> {char.classType}</p>
+                        <p><strong>Created on:</strong> {new Date(char.createdAt).toLocaleDateString()}</p>
                         <div className="flex flex-col gap-2 mt-4">
                             <button className="bg-green-600 text-white px-2 py-3 rounded-lg shadow-md hover:cursor-pointer hover:bg-green-300"
                             onClick={() => SeeMore(index)}
