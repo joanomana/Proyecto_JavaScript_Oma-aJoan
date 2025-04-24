@@ -4,7 +4,6 @@ import Content from '@/components/home/Content';
 import Footer from '@/components/home/Footer';
 import Characters from '@/components/home/Characters';
 import Spells from '@/components/home/Spells';
-import Languages from '@/components/home/Languages';
 import { useState } from 'react';
 
 export default function Home (){
@@ -16,8 +15,6 @@ export default function Home (){
         return <Characters />;
       case 'spells':
         return <Spells />;
-      case 'languages':
-        return <Languages />;
       case 'icon':
         return <Content />;
       default:
@@ -28,7 +25,7 @@ export default function Home (){
   return (
     <div className="flex flex-col justify-between min-h-screen">
       <Nav setSelectedPage={setSelectedPage}/>
-      <div className='flex flex-col  justify-center p-2'>
+      <div >
         {renderComponent()}
       </div>
       <Footer/>
