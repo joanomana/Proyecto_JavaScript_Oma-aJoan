@@ -33,7 +33,6 @@ export default function Nav({ setSelectedPage }) {
                 <div className=" hidden md:flex gap-10 absolute left-1/2 transform -translate-x-1/2">
                     <button className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg   " onClick={() => handlePageChange('characters')}>Rules</button>
                     <button className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg " onClick={() => handlePageChange('spells')}>Spells</button>
-                    <button className="hover:cursor-pointer hover:bg-gray-500 hover:p-2 hover:rounded-lg " onClick={() => handlePageChange('languages')}>Languages</button>
                 </div>
 
                 <div className="hidden md:block">
@@ -46,9 +45,8 @@ export default function Nav({ setSelectedPage }) {
 
             {isOpen && (
                 <div className="flex flex-col gap-4 mt-4 md:hidden">
-                    <button onClick={() => handlePageChange('characters')}>Characters</button>
+                    <button onClick={() => handlePageChange('characters')}>Rules</button>
                     <button onClick={() => handlePageChange('spells')}>Spells</button>
-                    <button onClick={() => handlePageChange('languages')}>Languages</button>
                     <a href="/login" className="p-2 rounded-lg bg-red-500">
                         Custom Character
                     </a>
